@@ -855,13 +855,13 @@
               {/* MÜKERRER KAYIT ÇÖZÜMLEME EKRANI */}
               {pendingImport && (
                   <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity">
-                      <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-2xl w-full flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+                      <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-4xl w-full flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
                           <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4 text-orange-600 border-b pb-4">
                               <div className="flex items-center gap-2"><Files size={28} /><h3 className="text-xl font-bold text-gray-900">Mükerrer Kayıt Çözümleme</h3></div>
                           </div>
                           
                           <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                              İçe aktardığınız listede, sistemde zaten kayıtlı olan T.C. kimlik numaraları tespit edildi. <br/>
+                              İçe aktardığınız listede, sistemde zaten kayıtlı olan T.C. kimlik numaraları tespit edildi. Aşağıdan iki kaydı karşılaştırıp işleminize karar verebilirsiniz.<br/>
                               <span className="text-emerald-700 font-medium mr-2">✔ İşaretli olanlar:</span> Sistemdeki mevcut kaydın üzerine yazılır (Birleştirilir). <br/>
                               <span className="text-gray-500 font-medium">☐ İşaretsiz olanlar:</span> Mevcut kayda dokunulmaz, Excel'deki veri tamamen yeni bir satır olarak eklenir.
                           </p>
@@ -879,48 +879,76 @@
                               </button>
                           </div>
 
-                          <div className="flex-1 overflow-y-auto bg-gray-50 rounded-xl border border-gray-200 p-2 mb-6 max-h-72 shadow-inner">
+                          <div className="flex-1 overflow-y-auto bg-gray-50 rounded-xl border border-gray-200 p-2 md:p-4 mb-6 max-h-[50vh] shadow-inner space-y-3">
                               {pendingImport.duplicateData.map((item, idx) => (
-                                  <div key={idx} className="flex items-center p-3 hover:bg-white bg-gray-50 mb-1 rounded-lg border border-transparent hover:border-gray-200 hover:shadow-sm transition-all">
-                                      <input
-                                          type="checkbox"
-                                          id={`merge_${idx}`}
-                                          className="w-5 h-5 text-emerald-600 rounded cursor-pointer mr-4"
-                                          checked={selectedForMerge.has(idx)}
-                                          onChange={() => {
-                                              const newSet = new Set(selectedForMerge);
-                                              if (newSet.has(idx)) newSet.delete(idx);
-                                              else newSet.add(idx);
-                                              setSelectedForMerge(newSet);
-                                          }}
-                                      />
-                                      <label htmlFor={`merge_${idx}`} className="flex-1 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between">
-                                          <div>
-                                              <span className={`font-bold text-sm block ${selectedForMerge.has(idx) ? 'text-emerald-800' : 'text-gray-800'}`}>{item.excelRecord.ad} {item.excelRecord.soyad}</span>
-                                              <span className="text-xs text-gray-500 font-mono mt-0.5 block">{item.excelRecord.tc}</span>
+                                  <div key={idx} className={`flex flex-col items-start p-3 md:p-4 bg-white rounded-xl border-2 transition-all relative ${selectedForMerge.has(idx) ? 'border-emerald-400 shadow-md ring-2 ring-emerald-50' : 'border-gray-200 hover:border-gray-300 shadow-sm'}`}>
+                                      
+                                      <div className="flex items-start w-full gap-3 md:gap-4">
+                                          <div className="pt-2">
+                                              <input
+                                                  type="checkbox"
+                                                  id={`merge_${idx}`}
+                                                  className="w-5 h-5 text-emerald-600 rounded cursor-pointer border-gray-300 focus:ring-emerald-500"
+                                                  checked={selectedForMerge.has(idx)}
+                                                  onChange={() => {
+                                                      const newSet = new Set(selectedForMerge);
+                                                      if (newSet.has(idx)) newSet.delete(idx);
+                                                      else newSet.add(idx);
+                                                      setSelectedForMerge(newSet);
+                                                  }}
+                                              />
                                           </div>
-                                          <div className="mt-2 sm:mt-0 flex gap-2">
-                                              <span className={`text-[10px] uppercase font-bold px-2.5 py-1 rounded-md ${selectedForMerge.has(idx) ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-200 text-gray-600'}`}>
-                                                  {selectedForMerge.has(idx) ? 'Birleştirilecek' : 'Yeni Eklenecek'}
-                                              </span>
-                                          </div>
-                                      </label>
+                                          
+                                          <label htmlFor={`merge_${idx}`} className="flex-1 cursor-pointer w-full flex flex-col gap-3">
+                                              <div className="flex flex-col md:flex-row gap-3 w-full items-stretch">
+                                                  
+                                                  {/* SOL SÜTUN: MEVCUT KAYIT */}
+                                                  <div className="flex-1 bg-gray-50 p-3 rounded-lg border border-gray-100 relative overflow-hidden">
+                                                      <div className="absolute top-0 right-0 w-16 h-16 bg-gray-200 opacity-20 rounded-bl-full"></div>
+                                                      <div className="text-[10px] uppercase font-bold text-gray-500 mb-1 flex items-center gap-1"><Users size={12} /> Sistemdeki Mevcut Kayıt</div>
+                                                      <div className="font-bold text-sm text-gray-800">{item.existingRecord.ad} {item.existingRecord.soyad}</div>
+                                                      <div className="text-xs text-gray-500 font-mono mt-1">{item.existingRecord.tc}</div>
+                                                  </div>
+
+                                                  {/* OK İŞARETİ */}
+                                                  <div className="hidden md:flex items-center justify-center text-gray-300">
+                                                      <ArrowRightLeft size={20} />
+                                                  </div>
+
+                                                  {/* SAĞ SÜTUN: YENİ KAYIT */}
+                                                  <div className={`flex-1 p-3 rounded-lg border transition-colors relative overflow-hidden ${selectedForMerge.has(idx) ? 'bg-emerald-50 border-emerald-200' : 'bg-blue-50 border-blue-100'}`}>
+                                                      <div className="absolute top-0 right-0 w-16 h-16 bg-white opacity-40 rounded-bl-full"></div>
+                                                      <div className={`text-[10px] uppercase font-bold mb-1 flex items-center gap-1 ${selectedForMerge.has(idx) ? 'text-emerald-700' : 'text-blue-600'}`}><FileSpreadsheet size={12} /> Excel'deki Yeni Kayıt</div>
+                                                      <div className={`font-bold text-sm ${selectedForMerge.has(idx) ? 'text-emerald-900' : 'text-blue-900'}`}>{item.excelRecord.ad} {item.excelRecord.soyad}</div>
+                                                      <div className={`text-xs font-mono mt-1 ${selectedForMerge.has(idx) ? 'text-emerald-700' : 'text-blue-700'}`}>{item.excelRecord.tc}</div>
+                                                  </div>
+
+                                              </div>
+
+                                              {/* DURUM BİLGİSİ */}
+                                              <div className="flex justify-end border-t border-gray-100 pt-2 mt-1">
+                                                  <span className={`text-[10px] uppercase font-bold px-3 py-1.5 rounded-md flex items-center gap-1.5 ${selectedForMerge.has(idx) ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+                                                      {selectedForMerge.has(idx) ? <><Check size={14}/> Üzerine Yazılarak Birleştirilecek</> : <><UserPlus size={14}/> Tamamen Yeni Kayıt Açılacak</>}
+                                                  </span>
+                                              </div>
+                                          </label>
+                                      </div>
                                   </div>
                               ))}
                           </div>
 
-                          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-auto pt-2">
+                          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-2">
                               <button
                                   onClick={() => { setPendingImport(null); if (fileInputRef.current) fileInputRef.current.value = null; }}
-                                  className="px-5 py-3 text-gray-600 hover:bg-gray-100 font-bold rounded-xl transition w-full sm:w-auto"
+                                  className="px-6 py-3.5 text-gray-600 hover:bg-gray-100 font-bold rounded-xl transition w-full sm:w-auto text-sm"
                               >
                                   İptal Et
                               </button>
                               <button
                                   onClick={() => executeImport(pendingImport.uniqueData, pendingImport.duplicateData, selectedForMerge)}
-                                  className="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-bold shadow-md shadow-emerald-200 transition flex items-center justify-center gap-2 w-full sm:w-auto"
+                                  className="px-8 py-3.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-bold shadow-md shadow-emerald-200 transition flex items-center justify-center gap-2 w-full sm:w-auto text-sm"
                               >
-                                  <Save size={20} /> Aktarımı Tamamla
+                                  <Save size={20} /> İşlemi Tamamla
                               </button>
                           </div>
                       </div>
