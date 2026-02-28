@@ -92,7 +92,7 @@
 
         // Firebase Modülleri
         import { initializeApp } from "firebase/app";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "firebase/auth";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, signInWithEmailAndPassword, signOut } from "firebase/auth";
         import { initializeFirestore, persistentLocalCache, getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, setLogLevel } from "firebase/firestore";
 
         // --- YAPILANDIRMA VE ALGILAMA ---
@@ -120,7 +120,8 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         // --- GİRİŞ BİLGİLERİ ---
-        const AUTHORIZED_USER = { username: "admin", password: "Nigdeihh.2026." };
+        // Güvenlik amacıyla hardcoded (koda yazılmış) şifre kaldırıldı. 
+        // Kontrol artık Firebase Authentication üzerinden yapılacak.
 
         const NIGDE_DATA = {
             "Merkez": ["Fertek Mah.", "Aşağı Kayabaşı Mah.", "Sarıköprü Mah.", "Selçuk Mah.", "İlhanlı Mah.", "Nar Mah.", "Şahsüleyman Mah.", "Kale Mah.", "Efendibey Mah.", "Şehitler Mah.", "İnönü Mah.", "Yukarı Kayabaşı Mah.", "Kayardı Mah.", "Kumluca Mah.", "Diğer / Köy"],
@@ -405,19 +406,30 @@
             setSearchTerm("");
           };
 
-          const handleLogin = (e) => {
+          const handleLogin = async (e) => {
             e.preventDefault();
-            if (loginCredentials.username === AUTHORIZED_USER.username && loginCredentials.password === AUTHORIZED_USER.password) {
+            setLoginError('');
+            try {
+              // 'admin' kullanıcı adını Firebase'de tanımlayacağımız e-postaya yönlendiriyoruz
+              const email = loginCredentials.username === 'admin' ? 'admin@nigdeihh.com' : loginCredentials.username;
+              await signInWithEmailAndPassword(auth, email, loginCredentials.password);
               setIsAuthenticated(true);
-              setLoginError('');
-            } else {
+            } catch (error) {
               setLoginError('Kullanıcı adı veya şifre hatalı!');
+              console.error("Giriş Hatası: ", error.code);
             }
           };
 
-          const handleLogout = () => {
-            setIsAuthenticated(false);
-            setLoginCredentials({ username: '', password: '' });
+          const handleLogout = async () => {
+            try {
+              await signOut(auth);
+              setIsAuthenticated(false);
+              setLoginCredentials({ username: '', password: '' });
+              // Firebase veritabanı okuma izinlerinin bozulmaması için çıkıştan sonra gizlice anonim oturuma dön
+              await signInAnonymously(auth);
+            } catch (error) {
+              console.error("Çıkış hatası:", error);
+            }
           };
 
           const downloadExcel = () => {
