@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>İHH Yardım Takip Sistemi (Derecelendirme Modlu)</title>
+    <title>İHH Yardım Takip Sistemi</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -37,7 +37,7 @@
             background-color: #f3f4f6;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            overflow-y: scroll; /* Ekranın sağa-sola zıplamasını engeller */
+            overflow-y: scroll; 
         }
         
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -45,7 +45,6 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* Navigasyon barı için gizli scrollbar stili */
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -56,17 +55,14 @@
             flex-direction: column; z-index: 1000;
         }
 
-        /* Form Elemanları Özelleştirmesi */
         select { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
         
-        /* Modern Range Slider */
         input[type=range] { height: 28px; -webkit-appearance: none; margin: 10px 0; width: 100%; background: transparent; }
         input[type=range]:focus { outline: none; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 8px; cursor: pointer; transition: 0.2s; background: #e2e8f0; border-radius: 9999px; }
         input[type=range]::-webkit-slider-thumb { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 2px solid #10b981; height: 24px; width: 24px; border-radius: 50%; background: #ffffff; cursor: pointer; -webkit-appearance: none; margin-top: -8px; transition: transform 0.1s; }
         input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.1); }
         
-        /* Mobil Tablo Kaydırma İpucu */
         .table-scroll-hint { display: none; }
         @media (max-width: 768px) { .table-scroll-hint { display: block; text-align: center; font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem; font-style: italic; } }
     </style>
@@ -88,7 +84,7 @@
             Trash2, Filter, Edit, FileText, Cloud, Loader2, CheckCircle,
             AlertTriangle, Download, Calendar, X, ListFilter, Lock, LogOut,
             KeyRound, User, WifiOff, Wifi, Baby, CreditCard, Gift, ArrowRightLeft,
-            BarChart3, Upload, ChevronRight, ChevronLeft, Check, Info, MapPin, Sparkles
+            BarChart3, Upload, ChevronRight, ChevronLeft, Check, Info, MapPin, Sparkles, Files
         } from 'lucide-react';
 
         // Firebase Modülleri
@@ -122,10 +118,6 @@
         }
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-        // --- GİRİŞ BİLGİLERİ ---
-        // Güvenlik amacıyla hardcoded (koda yazılmış) şifre kaldırıldı. 
-        // Kontrol artık Firebase Authentication üzerinden yapılacak.
 
         const NIGDE_DATA = {
             "Merkez": ["Fertek Mah.", "Aşağı Kayabaşı Mah.", "Sarıköprü Mah.", "Selçuk Mah.", "İlhanlı Mah.", "Nar Mah.", "Şahsüleyman Mah.", "Kale Mah.", "Efendibey Mah.", "Şehitler Mah.", "İnönü Mah.", "Yukarı Kayabaşı Mah.", "Kayardı Mah.", "Kumluca Mah.", "Diğer / Köy"],
@@ -212,9 +204,12 @@
            
           const [duplicateRecord, setDuplicateRecord] = useState(null);
           const [duplicateReason, setDuplicateReason] = useState(null); 
+          
+          // Çoklu İçe Aktarım Durumları
+          const [pendingImport, setPendingImport] = useState(null);
+          const [selectedForMerge, setSelectedForMerge] = useState(new Set());
           const [importStats, setImportStats] = useState(null);
 
-          // Sekme geçişi yönetimi (Düzenleme modundan "Yeni Kayıt"a geçerken formu temizler, taslakta ise temizlemez)
           const handleTabClick = (targetTab) => {
               if (targetTab === 'form' && editingId) {
                   resetForm();
@@ -235,7 +230,6 @@
             minIhtiyac: "", maxIhtiyac: "", aldigiYardim: "", yaptigimizYardim: "", uyruk: ""
           });
 
-          // --- STEPPER VE HATA YÖNETİMİ ---
           const [currentStep, setCurrentStep] = useState(1);
           const [errors, setErrors] = useState({}); 
 
@@ -415,7 +409,6 @@
             setLoginError('');
             try {
               let loginEmail = loginCredentials.username;
-              // Eğer kullanıcı alanına @ içermeyen bir metin (sadece kullanıcı adı) yazıldıysa, email'e çevir.
               if (loginEmail && !loginEmail.includes('@')) {
                   loginEmail += '@nigdeihh.com';
               }
@@ -432,7 +425,6 @@
               await signOut(auth);
               setIsAuthenticated(false);
               setLoginCredentials({ username: '', password: '' });
-              // Firebase veritabanı okuma izinlerinin bozulmaması için çıkıştan sonra gizlice anonim oturuma dön
               await signInAnonymously(auth);
             } catch (error) {
               console.error("Çıkış hatası:", error);
@@ -460,9 +452,13 @@
                     const ws = wb.Sheets[wsname];
                     const data = XLSX.utils.sheet_to_json(ws);
 
-                    const existingTcs = new Set(records.map(r => r.tc).filter(Boolean));
+                    const existingTcsMap = new Map();
+                    records.forEach(r => {
+                        if(r.tc) existingTcsMap.set(String(r.tc).trim(), r);
+                    });
+
                     const uniqueData = [];
-                    let skipped = 0;
+                    const duplicateData = [];
 
                     const processedData = data.map(item => {
                         let parsedChildren = [];
@@ -478,38 +474,64 @@
 
                     for (const row of processedData) {
                         const tcStr = row.tc ? String(row.tc).trim() : '';
-                        if (tcStr && existingTcs.has(tcStr)) {
-                            skipped++;
+                        if (tcStr && existingTcsMap.has(tcStr)) {
+                            duplicateData.push({ excelRecord: row, existingRecord: existingTcsMap.get(tcStr) });
                         } else {
                             uniqueData.push(row);
-                            if (tcStr) existingTcs.add(tcStr); // Excel içindeki kendi tekrarlarını da engeller
                         }
                     }
 
-                    if (uniqueData.length > 0 || skipped > 0) {
-                        importRecords(uniqueData, skipped);
+                    if (duplicateData.length > 0) {
+                        setPendingImport({ uniqueData, duplicateData });
+                        setSelectedForMerge(new Set(duplicateData.map((_, i) => i)));
+                    } else if (uniqueData.length > 0) {
+                        executeImport(uniqueData, [], new Set());
+                    } else {
+                        if (fileInputRef.current) fileInputRef.current.value = null; 
                     }
                 } catch (error) {
                     console.error("Dosya okunamadı. Formatın doğru olduğundan emin olun.", error);
+                    if (fileInputRef.current) fileInputRef.current.value = null;
                 }
             };
             reader.readAsBinaryString(file);
-            e.target.value = null; 
           };
 
-          const importRecords = async (newData, skippedCount = 0) => {
+          const executeImport = async (uniqueList, duplicateList, mergeSet) => {
             setLoading(true);
+            setPendingImport(null);
+            let addedCount = 0;
+            let mergedCount = 0;
+
             try {
                 if (!user) return;
-                for (const record of newData) {
+
+                for (const record of uniqueList) {
                     const newRecordData = { ...record, timestamp: Date.now() };
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'yardim_kayitlari'), newRecordData);
+                    addedCount++;
                 }
-                setImportStats({ added: newData.length, skipped: skippedCount });
+
+                for (let i = 0; i < duplicateList.length; i++) {
+                    const { excelRecord, existingRecord } = duplicateList[i];
+                    if (mergeSet.has(i)) {
+                        const updateData = { ...excelRecord, timestamp: Date.now() };
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'yardim_kayitlari', existingRecord.id), updateData);
+                        mergedCount++;
+                    } else {
+                        const newRecordData = { ...excelRecord, timestamp: Date.now() };
+                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'yardim_kayitlari'), newRecordData);
+                        addedCount++;
+                    }
+                }
+
+                setImportStats({ added: addedCount, merged: mergedCount });
             } catch (e) {
                 if (e.code === 'permission-denied') setPermissionError(true);
+                console.error("Aktarım hatası:", e);
             } finally {
                 setLoading(false);
+                if (fileInputRef.current) fileInputRef.current.value = null;
             }
           };
 
@@ -576,7 +598,6 @@
           const handleSubmit = async (e) => {
             e.preventDefault();
             
-            // Tüm adımları sırayla doğrula (Serbest gezinmede zorunlu alan atlanmasın diye)
             for (let i = 1; i <= totalSteps; i++) {
                 if (!validateStep(i)) {
                     setCurrentStep(i);
@@ -764,7 +785,6 @@
             return sortConfig.direction === 'ascending' ? <SortAsc size={14} className="text-emerald-700" /> : <SortDesc size={14} className="text-emerald-700" />;
           };
 
-          // YARDIMCI BİLEŞENLER (UI)
           const getBorderClass = (name) => errors[name] 
               ? 'border-2 border-red-500 bg-red-50 ring-4 ring-red-500/20 focus:border-red-600 text-red-900 placeholder-red-300 shadow-inner font-semibold' 
               : 'border-2 border-slate-300 bg-slate-50/80 hover:bg-slate-50 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/20 text-slate-900 placeholder-slate-400 shadow-inner font-semibold';
@@ -832,14 +852,90 @@
                 </div>
               )}
 
+              {/* MÜKERRER KAYIT ÇÖZÜMLEME EKRANI */}
+              {pendingImport && (
+                  <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity">
+                      <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-2xl w-full flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4 text-orange-600 border-b pb-4">
+                              <div className="flex items-center gap-2"><Files size={28} /><h3 className="text-xl font-bold text-gray-900">Mükerrer Kayıt Çözümleme</h3></div>
+                          </div>
+                          
+                          <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                              İçe aktardığınız listede, sistemde zaten kayıtlı olan T.C. kimlik numaraları tespit edildi. <br/>
+                              <span className="text-emerald-700 font-medium mr-2">✔ İşaretli olanlar:</span> Sistemdeki mevcut kaydın üzerine yazılır (Birleştirilir). <br/>
+                              <span className="text-gray-500 font-medium">☐ İşaretsiz olanlar:</span> Mevcut kayda dokunulmaz, Excel'deki veri tamamen yeni bir satır olarak eklenir.
+                          </p>
+
+                          <div className="flex justify-between items-center mb-2 px-1">
+                              <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">Çakışan {pendingImport.duplicateData.length} Kayıt</span>
+                              <button onClick={() => {
+                                  if (selectedForMerge.size === pendingImport.duplicateData.length) {
+                                      setSelectedForMerge(new Set());
+                                  } else {
+                                      setSelectedForMerge(new Set(pendingImport.duplicateData.map((_, i) => i)));
+                                  }
+                              }} className="text-xs text-emerald-600 font-bold hover:underline bg-emerald-50 px-3 py-1 rounded-lg">
+                                  {selectedForMerge.size === pendingImport.duplicateData.length ? 'Hiçbirini Seçme' : 'Tümünü Seç'}
+                              </button>
+                          </div>
+
+                          <div className="flex-1 overflow-y-auto bg-gray-50 rounded-xl border border-gray-200 p-2 mb-6 max-h-72 shadow-inner">
+                              {pendingImport.duplicateData.map((item, idx) => (
+                                  <div key={idx} className="flex items-center p-3 hover:bg-white bg-gray-50 mb-1 rounded-lg border border-transparent hover:border-gray-200 hover:shadow-sm transition-all">
+                                      <input
+                                          type="checkbox"
+                                          id={`merge_${idx}`}
+                                          className="w-5 h-5 text-emerald-600 rounded cursor-pointer mr-4"
+                                          checked={selectedForMerge.has(idx)}
+                                          onChange={() => {
+                                              const newSet = new Set(selectedForMerge);
+                                              if (newSet.has(idx)) newSet.delete(idx);
+                                              else newSet.add(idx);
+                                              setSelectedForMerge(newSet);
+                                          }}
+                                      />
+                                      <label htmlFor={`merge_${idx}`} className="flex-1 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between">
+                                          <div>
+                                              <span className={`font-bold text-sm block ${selectedForMerge.has(idx) ? 'text-emerald-800' : 'text-gray-800'}`}>{item.excelRecord.ad} {item.excelRecord.soyad}</span>
+                                              <span className="text-xs text-gray-500 font-mono mt-0.5 block">{item.excelRecord.tc}</span>
+                                          </div>
+                                          <div className="mt-2 sm:mt-0 flex gap-2">
+                                              <span className={`text-[10px] uppercase font-bold px-2.5 py-1 rounded-md ${selectedForMerge.has(idx) ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-200 text-gray-600'}`}>
+                                                  {selectedForMerge.has(idx) ? 'Birleştirilecek' : 'Yeni Eklenecek'}
+                                              </span>
+                                          </div>
+                                      </label>
+                                  </div>
+                              ))}
+                          </div>
+
+                          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-auto pt-2">
+                              <button
+                                  onClick={() => { setPendingImport(null); if (fileInputRef.current) fileInputRef.current.value = null; }}
+                                  className="px-5 py-3 text-gray-600 hover:bg-gray-100 font-bold rounded-xl transition w-full sm:w-auto"
+                              >
+                                  İptal Et
+                              </button>
+                              <button
+                                  onClick={() => executeImport(pendingImport.uniqueData, pendingImport.duplicateData, selectedForMerge)}
+                                  className="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-bold shadow-md shadow-emerald-200 transition flex items-center justify-center gap-2 w-full sm:w-auto"
+                              >
+                                  <Save size={20} /> Aktarımı Tamamla
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+              )}
+
+              {/* İÇE AKTARIM SONUÇ EKRANI */}
               {importStats && (
                 <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity">
                   <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-sm w-full animate-in zoom-in-95 duration-200 border-t-4 border-emerald-500">
                     <div className="flex items-center gap-3 mb-4 text-emerald-600"><CheckCircle size={28} /><h3 className="text-xl font-bold">İçe Aktarma Tamamlandı</h3></div>
                     <div className="bg-gray-50 rounded-xl p-4 mb-6 border border-gray-100 space-y-3">
-                        <div className="flex justify-between items-center"><span className="text-gray-600 text-sm font-medium">Başarıyla Eklenen:</span> <span className="font-bold text-emerald-600 text-lg">{importStats.added}</span></div>
-                        {importStats.skipped > 0 && (
-                            <div className="flex justify-between items-center border-t border-gray-200 pt-3 mt-2"><span className="text-gray-600 text-sm font-medium">Atlanan Mükerrer (Aynı TC):</span> <span className="font-bold text-orange-500 text-lg">{importStats.skipped}</span></div>
+                        <div className="flex justify-between items-center"><span className="text-gray-600 text-sm font-medium">Yeni Eklenen Kayıtlar:</span> <span className="font-bold text-emerald-600 text-lg">{importStats.added}</span></div>
+                        {importStats.merged > 0 && (
+                            <div className="flex justify-between items-center border-t border-gray-200 pt-3 mt-2"><span className="text-gray-600 text-sm font-medium">Üzerine Yazılan (Birleştirilen):</span> <span className="font-bold text-blue-600 text-lg">{importStats.merged}</span></div>
                         )}
                     </div>
                     <button onClick={() => setImportStats(null)} className="w-full px-5 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-bold shadow-md shadow-emerald-200 transition active:scale-95">Anladım, Kapat</button>
