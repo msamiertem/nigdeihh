@@ -89,7 +89,7 @@
 
         // Firebase Modülleri
         import { initializeApp } from "firebase/app";
-        import { getAnalytics } from "firebase/analytics";
+        import { getAnalytics, isSupported } from "firebase/analytics";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, signInWithEmailAndPassword, signOut } from "firebase/auth";
         import { initializeFirestore, persistentLocalCache, getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, setLogLevel } from "firebase/firestore";
 
@@ -108,10 +108,19 @@
 
         try {
             app = initializeApp(firebaseConfig);
-            analytics = getAnalytics(app);
             auth = getAuth(app);
             db = initializeFirestore(app, { localCache: persistentLocalCache() });
             setLogLevel('silent'); 
+            
+            // Analytics'i iframe/sandbox ortamında (önizlemede) hata vermemesi için sadece ana sayfadaysa başlatıyoruz
+            if (typeof window !== 'undefined' && window.self === window.top) {
+                isSupported().then((supported) => {
+                    if (supported) {
+                        analytics = getAnalytics(app);
+                    }
+                }).catch(() => {});
+            }
+            
         } catch (e) {
             console.error("Firebase başlatılamadı:", e);
             db = getFirestore(app); 
@@ -746,7 +755,7 @@
               );
             }
             if (filters.ilce) sortableItems = sortableItems.filter(i => i.ilce === filters.ilce);
-            if (filters.mahalle) sortableItems = sortableItems.filter(i => i.mahalle === filters.mahalle);
+            if (filters.mahalle) sortableItems = filter(i => i.mahalle === filters.mahalle);
             if (filters.maddiDurum) sortableItems = sortableItems.filter(i => i.maddiDurum === filters.maddiDurum);
             if (filters.evKiraMi) sortableItems = sortableItems.filter(i => i.evKiraMi === filters.evKiraMi);
             if (filters.medeniHal) sortableItems = sortableItems.filter(i => i.medeniHal === filters.medeniHal);
@@ -763,9 +772,26 @@
             if (sortConfig.key) {
               sortableItems.sort((a, b) => {
                 let aValue = a[sortConfig.key]; let bValue = b[sortConfig.key];
-                if (sortConfig.key === 'kayitTarihi') { aValue = a.timestamp || 0; bValue = b.timestamp || 0; }
+                
+                // Maddi durum için mantıksal sıralama (Çok Kötü -> Çok İyi)
+                if (sortConfig.key === 'maddiDurum') {
+                    const getMaddiDurumScore = (val) => {
+                        switch(val) {
+                            case 'Çok Kötü': return 1;
+                            case 'Kötü': return 2;
+                            case 'Orta': return 3;
+                            case 'İyi': return 4;
+                            case 'Çok İyi': return 5;
+                            default: return 0;
+                        }
+                    };
+                    aValue = getMaddiDurumScore(a.maddiDurum);
+                    bValue = getMaddiDurumScore(b.maddiDurum);
+                }
+                else if (sortConfig.key === 'kayitTarihi') { aValue = a.timestamp || 0; bValue = b.timestamp || 0; }
                 else if (sortConfig.key === 'aylikGelir' || sortConfig.key === 'kisiSayisi' || sortConfig.key === 'ihtiyacDerecesi') { aValue = Number(aValue); bValue = Number(bValue); }
                 else { aValue = aValue ? aValue.toString().toLowerCase() : ''; bValue = bValue ? bValue.toString().toLowerCase() : ''; }
+                
                 if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
                 if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
                 return 0;
@@ -1380,9 +1406,11 @@
                          <table className="w-full text-sm text-left whitespace-nowrap">
                            <thead className="bg-gray-50 text-gray-600 uppercase text-[11px] font-extrabold tracking-wider border-b border-gray-200">
                              <tr>
+                                <th className="px-5 py-4 text-center w-12">#</th>
                                 <th onClick={() => requestSort('ad')} className="px-5 py-4 cursor-pointer hover:bg-gray-100 transition"><div className="flex items-center gap-1.5">Ad Soyad <SortIcon colKey="ad"/></div></th>
                                 <th onClick={() => requestSort('tc')} className="px-5 py-4 cursor-pointer hover:bg-gray-100 transition"><div className="flex items-center gap-1.5">TC Kimlik <SortIcon colKey="tc"/></div></th>
                                 <th onClick={() => requestSort('ilce')} className="px-5 py-4 cursor-pointer hover:bg-gray-100 transition"><div className="flex items-center gap-1.5">İlçe / Bölge <SortIcon colKey="ilce"/></div></th>
+                                <th onClick={() => requestSort('maddiDurum')} className="px-5 py-4 cursor-pointer hover:bg-gray-100 transition"><div className="flex items-center gap-1.5">Maddi Durum <SortIcon colKey="maddiDurum"/></div></th>
                                 <th onClick={() => requestSort('ihtiyacDerecesi')} className="px-5 py-4 cursor-pointer hover:bg-gray-100 transition"><div className="flex items-center gap-1.5">Öncelik Derecesi <SortIcon colKey="ihtiyacDerecesi"/></div></th>
                                 <th onClick={() => requestSort('kayitTarihi')} className="px-5 py-4 cursor-pointer hover:bg-gray-100 transition"><div className="flex items-center gap-1.5">Kayıt Tarihi <SortIcon colKey="kayitTarihi"/></div></th>
                                 <th className="px-5 py-4 text-center">İşlemler</th>
@@ -1390,11 +1418,24 @@
                            </thead>
                            <tbody className="divide-y divide-gray-100">
                              {sortedAndFilteredRecords.length > 0 ? (
-                               sortedAndFilteredRecords.map((record) => (
+                               sortedAndFilteredRecords.map((record, index) => (
                                  <tr key={record.id} className="hover:bg-emerald-50/40 transition">
+                                   <td className="px-5 py-4 text-center font-bold text-gray-400 bg-gray-50/50">{index + 1}</td>
                                    <td className="px-5 py-4 font-bold text-gray-900">{record.ad} {record.soyad}</td>
                                    <td className="px-5 py-4 text-gray-500 font-mono text-xs">{record.tc || '-'}</td>
                                    <td className="px-5 py-4 text-gray-600 font-medium">{record.mahalle ? `${record.mahalle}, ` : ''}{record.ilce}</td>
+                                   <td className="px-5 py-4">
+                                      <span className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wide ${
+                                        record.maddiDurum === 'Çok Kötü' ? 'bg-red-100 text-red-700' :
+                                        record.maddiDurum === 'Kötü' ? 'bg-orange-100 text-orange-700' :
+                                        record.maddiDurum === 'Orta' ? 'bg-yellow-100 text-yellow-700' :
+                                        record.maddiDurum === 'İyi' ? 'bg-emerald-100 text-emerald-700' :
+                                        record.maddiDurum === 'Çok İyi' ? 'bg-blue-100 text-blue-700' :
+                                        'bg-gray-100 text-gray-600'
+                                      }`}>
+                                        {record.maddiDurum || 'Belirtilmedi'}
+                                      </span>
+                                   </td>
                                    <td className="px-5 py-4">
                                       <div className="flex items-center gap-3" title={`İhtiyaç Puanı: ${record.ihtiyacDerecesi || 5}/10`}>
                                         <span className={`text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-sm ${
@@ -1428,7 +1469,7 @@
                                ))
                              ) : (
                                <tr>
-                                 <td colSpan="6" className="px-5 py-12 text-center">
+                                 <td colSpan="8" className="px-5 py-12 text-center">
                                     <div className="flex flex-col items-center justify-center text-gray-400">
                                         <Search size={32} className="mb-3 opacity-50" />
                                         <p className="text-sm font-medium">{searchTerm || filters.ilce || filters.maddiDurum || filters.medeniHal ? 'Arama kriterlerine uygun kayıt bulunamadı.' : 'Sistemde henüz hiç kayıt bulunmuyor.'}</p>
