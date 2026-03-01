@@ -90,7 +90,7 @@
         // Firebase Modülleri
         import { initializeApp } from "firebase/app";
         import { getAnalytics, isSupported } from "firebase/analytics";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, signInWithEmailAndPassword, signOut } from "firebase/auth";
+        import { getAuth, onAuthStateChanged, signInWithCustomToken, signInWithEmailAndPassword, signOut } from "firebase/auth";
         import { initializeFirestore, persistentLocalCache, getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, setLogLevel } from "firebase/firestore";
 
         // --- YAPILANDIRMA VE ALGILAMA ---
@@ -250,22 +250,31 @@
           useEffect(() => {
             const initAuth = async () => {
               try {
+                // Sadece Canvas önizlemesi için özel token kontrolü
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                   try {
                     await signInWithCustomToken(auth, __initial_auth_token);
                   } catch (tokenError) {
-                    await signInAnonymously(auth);
+                    console.log("Özel token ile giriş yapılamadı, manuel giriş bekleniyor.");
                   }
-                } else {
-                  await signInAnonymously(auth);
                 }
               } catch (error) {
+                console.error("Auth başlatma hatası:", error);
+              } finally {
                 setLoading(false);
               }
             };
             initAuth();
+            
             if (auth) {
-                const unsubscribe = onAuthStateChanged(auth, setUser);
+                // Kullanıcı oturum durumunu dinle (Sayfa yenilendiğinde oturumu korur)
+                const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+                    setUser(currentUser);
+                    if (currentUser) {
+                        setIsAuthenticated(true);
+                    }
+                    setLoading(false);
+                });
                 return () => unsubscribe();
             }
           }, []);
@@ -433,8 +442,8 @@
             try {
               await signOut(auth);
               setIsAuthenticated(false);
+              setUser(null);
               setLoginCredentials({ username: '', password: '' });
-              await signInAnonymously(auth);
             } catch (error) {
               console.error("Çıkış hatası:", error);
             }
