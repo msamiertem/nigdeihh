@@ -749,10 +749,11 @@
           const sortedAndFilteredRecords = useMemo(() => {
             let sortableItems = [...records];
             if (searchTerm) {
+              const searchLower = searchTerm.toLocaleLowerCase('tr-TR');
               sortableItems = sortableItems.filter(item => 
-                item.ad.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.soyad.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.tc.includes(searchTerm)
+                (item.ad || '').toLocaleLowerCase('tr-TR').includes(searchLower) ||
+                (item.soyad || '').toLocaleLowerCase('tr-TR').includes(searchLower) ||
+                (item.tc || '').includes(searchTerm)
               );
             }
             if (filters.ilce) sortableItems = sortableItems.filter(i => i.ilce === filters.ilce);
