@@ -750,14 +750,13 @@
             let sortableItems = [...records];
             if (searchTerm) {
               const searchLower = searchTerm.toLocaleLowerCase('tr-TR');
-              sortableItems = sortableItems.filter(item => 
-                (item.ad || '').toLocaleLowerCase('tr-TR').includes(searchLower) ||
-                (item.soyad || '').toLocaleLowerCase('tr-TR').includes(searchLower) ||
-                (item.tc || '').includes(searchTerm)
-              );
+              sortableItems = sortableItems.filter(item => {
+                const fullName = `${item.ad || ''} ${item.soyad || ''}`.toLocaleLowerCase('tr-TR');
+                return fullName.includes(searchLower) || (item.tc || '').includes(searchTerm);
+              });
             }
             if (filters.ilce) sortableItems = sortableItems.filter(i => i.ilce === filters.ilce);
-            if (filters.mahalle) sortableItems = filter(i => i.mahalle === filters.mahalle);
+            if (filters.mahalle) sortableItems = sortableItems.filter(i => i.mahalle === filters.mahalle);
             if (filters.maddiDurum) sortableItems = sortableItems.filter(i => i.maddiDurum === filters.maddiDurum);
             if (filters.evKiraMi) sortableItems = sortableItems.filter(i => i.evKiraMi === filters.evKiraMi);
             if (filters.medeniHal) sortableItems = sortableItems.filter(i => i.medeniHal === filters.medeniHal);
