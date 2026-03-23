@@ -242,9 +242,9 @@
           const [currentStep, setCurrentStep] = useState(1);
           const [errors, setErrors] = useState({}); 
 
-          const totalSteps = 6;
+          const totalSteps = 5;
           const stepTitles = [
-              "Kimlik", "Sağlık&Hane", "Ekonomi", "Adres", "İBAN", "Notlar"
+              "Kimlik", "Sağlık&Hane", "Adres", "İBAN", "Notlar"
           ];
 
           useEffect(() => {
@@ -559,8 +559,7 @@
                 2: [],
                 3: [],
                 4: [],
-                5: [],
-                6: []
+                5: []
             };
 
             let stepErrors = {};
@@ -1177,103 +1176,107 @@
                           </div>
                       )}
 
-                      {/* ADIM 2: SAĞLIK & HANE DURUMU */}
+                      {/* ADIM 2: SAĞLIK, HANE VE EKONOMİK DURUM (BİRLEŞTİRİLDİ) */}
                       {currentStep === 2 && (
-                          <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5">
-                                  <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Kronik Hastalık</label><input name="kronikHastalik" value={formData.kronikHastalik} onChange={handleInputChange} placeholder="Yok ise 'Yok'" className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base ${getBorderClass('kronikHastalik')}`} /><ErrorMsg name="kronikHastalik" /></div>
-                                  <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Engel Durumu</label><select name="engelDurumu" value={formData.engelDurumu} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base cursor-pointer ${getBorderClass('engelDurumu')}`}><option value="">Seçiniz</option><option value="Yok">Yok</option><option value="Az (%40 altı)">Az (%40 altı)</option><option value="Ağır (%40 üstü)">Ağır (%40 üstü)</option><option value="Tam Bağımlı">Tam Bağımlı</option></select><ErrorMsg name="engelDurumu" /></div>
-                                  <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Yetim Ailesi</label><select name="yetimAilesi" value={formData.yetimAilesi} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base cursor-pointer ${getBorderClass('yetimAilesi')}`}><option value="">Seçiniz</option><option value="Hayır">Hayır</option><option value="Evet">Evet</option></select><ErrorMsg name="yetimAilesi" /></div>
-                                  
-                                  <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Evde Kişi Sayısı</label><input type="number" min="1" name="kisiSayisi" value={formData.kisiSayisi} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base font-mono ${getBorderClass('kisiSayisi')}`} /><ErrorMsg name="kisiSayisi" /></div>
-                                  <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Evde Çalışan Sayısı</label><input type="number" min="0" name="calisanSayisi" value={formData.calisanSayisi} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base font-mono ${getBorderClass('calisanSayisi')}`} /><ErrorMsg name="calisanSayisi" /></div>
-                                  
-                                  <div className="col-span-full bg-blue-50/40 p-4 md:p-6 rounded-2xl border border-blue-100 mt-4 shadow-sm">
-                                      <div className="space-y-5">
-                                          <div className="space-y-1.5 max-w-xs"><label className="text-sm font-bold text-blue-900 flex items-center gap-2"><Baby size={20} className="text-blue-600" /> Hane İçi Çocuk Sayısı</label><input type="number" name="cocukSayisi" min="0" max="20" value={formData.cocukSayisi} onChange={handleChildCountChange} className="w-full border border-blue-200 rounded-xl p-3 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition bg-white text-sm font-mono shadow-sm" /></div>
-                                          
-                                          {formData.cocuklar && formData.cocuklar.length > 0 && (
-                                              <div className="grid grid-cols-1 gap-5 animate-in fade-in pt-2">
-                                                  {formData.cocuklar.map((child, index) => (
-                                                      <div key={index} className={`bg-white p-4 md:p-5 rounded-2xl border shadow-sm relative ${errors[`cocuk_ad_${index}`] || errors[`cocuk_dogumTarihi_${index}`] || errors[`cocuk_cinsiyet_${index}`] || errors[`cocuk_ogrenimDurumu_${index}`] ? 'border-red-300 ring-2 ring-red-50' : 'border-blue-100 hover:border-blue-200 transition'}`}>
-                                                          <div className={`absolute -top-3 -left-3 text-white text-xs font-bold w-7 h-7 flex items-center justify-center rounded-full shadow-md ${errors[`cocuk_ad_${index}`] || errors[`cocuk_dogumTarihi_${index}`] || errors[`cocuk_cinsiyet_${index}`] || errors[`cocuk_ogrenimDurumu_${index}`] ? 'bg-red-500' : 'bg-blue-500'}`}>{index + 1}</div>
-                                                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-1">
-                                                              <div className="space-y-1"><label className="text-[11px] font-bold text-gray-500 uppercase tracking-wide block">Adı Soyadı</label><input type="text" value={child.ad} onChange={(e) => handleChildChange(index, 'ad', e.target.value)} className={`w-full rounded-xl p-2.5 text-sm outline-none transition shadow-inner font-semibold ${errors[`cocuk_ad_${index}`] ? 'border-2 border-red-500 bg-red-50 text-red-900 focus:border-red-600 focus:ring-4 focus:ring-red-500/20 placeholder-red-300' : 'border-2 border-slate-300 bg-slate-50 hover:border-slate-400 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 text-slate-900 placeholder-slate-400'}`} placeholder="Ad Soyad"/></div>
-                                                              <div className="space-y-1"><label className="text-[11px] font-bold text-gray-500 uppercase tracking-wide block">Doğum Yılı</label><input type="number" type="tel" min="1990" max={new Date().getFullYear()} placeholder="Örn: 2015" value={child.dogumTarihi} onChange={(e) => handleChildChange(index, 'dogumTarihi', e.target.value)} className={`w-full rounded-xl p-2.5 text-sm outline-none transition font-mono shadow-inner font-semibold ${errors[`cocuk_dogumTarihi_${index}`] ? 'border-2 border-red-500 bg-red-50 text-red-900 focus:border-red-600 focus:ring-4 focus:ring-red-500/20 placeholder-red-300' : 'border-2 border-slate-300 bg-slate-50 hover:border-slate-400 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 text-slate-900 placeholder-slate-400'}`}/></div>
-                                                              <div className="space-y-1"><label className="text-[11px] font-bold text-gray-500 uppercase tracking-wide block">Cinsiyet</label><select value={child.cinsiyet} onChange={(e) => handleChildChange(index, 'cinsiyet', e.target.value)} className={`w-full rounded-xl p-2.5 text-sm outline-none transition cursor-pointer shadow-inner font-semibold ${errors[`cocuk_cinsiyet_${index}`] ? 'border-2 border-red-500 bg-red-50 text-red-900 focus:border-red-600 focus:ring-4 focus:ring-red-500/20' : 'border-2 border-slate-300 bg-slate-50 hover:border-slate-400 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 text-slate-900'}`}><option value="">Seçiniz</option><option value="Kız">Kız</option><option value="Erkek">Erkek</option></select></div>
-                                                              <div className="space-y-1"><label className="text-[11px] font-bold text-gray-500 uppercase tracking-wide block">Öğrenim Durumu</label><select value={child.ogrenimDurumu} onChange={(e) => handleChildChange(index, 'ogrenimDurumu', e.target.value)} className={`w-full rounded-xl p-2.5 text-sm outline-none transition cursor-pointer shadow-inner font-semibold ${errors[`cocuk_ogrenimDurumu_${index}`] ? 'border-2 border-red-500 bg-red-50 text-red-900 focus:border-red-600 focus:ring-4 focus:ring-red-500/20' : 'border-2 border-slate-300 bg-slate-50 hover:border-slate-400 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 text-slate-900'}`}><option value="">Seçiniz</option><option value="Okumuyor">Okumuyor</option><option value="Anaokulu">Anaokulu</option><option value="İlkokul">İlkokul</option><option value="Ortaokul">Ortaokul</option><option value="Lise">Lise</option><option value="Üniversite">Üniversite</option><option value="Açıköğretim">Açıköğretim</option></select></div>
+                          <div className="animate-in fade-in slide-in-from-right-4 duration-300 space-y-10">
+                              
+                              {/* SAĞLIK VE HANE DURUMU BÖLÜMÜ */}
+                              <div>
+                                  <h4 className="font-bold text-sm text-emerald-800 mb-5 flex items-center gap-2 uppercase tracking-wide border-b border-emerald-100 pb-2">Sağlık ve Hane Bilgileri</h4>
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5">
+                                      <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Kronik Hastalık</label><input name="kronikHastalik" value={formData.kronikHastalik} onChange={handleInputChange} placeholder="Yok ise 'Yok'" className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base ${getBorderClass('kronikHastalik')}`} /><ErrorMsg name="kronikHastalik" /></div>
+                                      <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Engel Durumu</label><select name="engelDurumu" value={formData.engelDurumu} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base cursor-pointer ${getBorderClass('engelDurumu')}`}><option value="">Seçiniz</option><option value="Yok">Yok</option><option value="Az (%40 altı)">Az (%40 altı)</option><option value="Ağır (%40 üstü)">Ağır (%40 üstü)</option><option value="Tam Bağımlı">Tam Bağımlı</option></select><ErrorMsg name="engelDurumu" /></div>
+                                      <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Yetim Ailesi</label><select name="yetimAilesi" value={formData.yetimAilesi} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base cursor-pointer ${getBorderClass('yetimAilesi')}`}><option value="">Seçiniz</option><option value="Hayır">Hayır</option><option value="Evet">Evet</option></select><ErrorMsg name="yetimAilesi" /></div>
+                                      
+                                      <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Evde Kişi Sayısı</label><input type="number" min="1" name="kisiSayisi" value={formData.kisiSayisi} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base font-mono ${getBorderClass('kisiSayisi')}`} /><ErrorMsg name="kisiSayisi" /></div>
+                                      <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Evde Çalışan Sayısı</label><input type="number" min="0" name="calisanSayisi" value={formData.calisanSayisi} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base font-mono ${getBorderClass('calisanSayisi')}`} /><ErrorMsg name="calisanSayisi" /></div>
+                                      
+                                      <div className="col-span-full bg-blue-50/40 p-4 md:p-6 rounded-2xl border border-blue-100 mt-2 shadow-sm">
+                                          <div className="space-y-5">
+                                              <div className="space-y-1.5 max-w-xs"><label className="text-sm font-bold text-blue-900 flex items-center gap-2"><Baby size={20} className="text-blue-600" /> Hane İçi Çocuk Sayısı</label><input type="number" name="cocukSayisi" min="0" max="20" value={formData.cocukSayisi} onChange={handleChildCountChange} className="w-full border border-blue-200 rounded-xl p-3 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition bg-white text-sm font-mono shadow-sm" /></div>
+                                              
+                                              {formData.cocuklar && formData.cocuklar.length > 0 && (
+                                                  <div className="grid grid-cols-1 gap-5 animate-in fade-in pt-2">
+                                                      {formData.cocuklar.map((child, index) => (
+                                                          <div key={index} className={`bg-white p-4 md:p-5 rounded-2xl border shadow-sm relative ${errors[`cocuk_ad_${index}`] || errors[`cocuk_dogumTarihi_${index}`] || errors[`cocuk_cinsiyet_${index}`] || errors[`cocuk_ogrenimDurumu_${index}`] ? 'border-red-300 ring-2 ring-red-50' : 'border-blue-100 hover:border-blue-200 transition'}`}>
+                                                              <div className={`absolute -top-3 -left-3 text-white text-xs font-bold w-7 h-7 flex items-center justify-center rounded-full shadow-md ${errors[`cocuk_ad_${index}`] || errors[`cocuk_dogumTarihi_${index}`] || errors[`cocuk_cinsiyet_${index}`] || errors[`cocuk_ogrenimDurumu_${index}`] ? 'bg-red-500' : 'bg-blue-500'}`}>{index + 1}</div>
+                                                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-1">
+                                                                  <div className="space-y-1"><label className="text-[11px] font-bold text-gray-500 uppercase tracking-wide block">Adı Soyadı</label><input type="text" value={child.ad} onChange={(e) => handleChildChange(index, 'ad', e.target.value)} className={`w-full rounded-xl p-2.5 text-sm outline-none transition shadow-inner font-semibold ${errors[`cocuk_ad_${index}`] ? 'border-2 border-red-500 bg-red-50 text-red-900 focus:border-red-600 focus:ring-4 focus:ring-red-500/20 placeholder-red-300' : 'border-2 border-slate-300 bg-slate-50 hover:border-slate-400 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 text-slate-900 placeholder-slate-400'}`} placeholder="Ad Soyad"/></div>
+                                                                  <div className="space-y-1"><label className="text-[11px] font-bold text-gray-500 uppercase tracking-wide block">Doğum Yılı</label><input type="number" min="1990" max={new Date().getFullYear()} placeholder="Örn: 2015" value={child.dogumTarihi} onChange={(e) => handleChildChange(index, 'dogumTarihi', e.target.value)} className={`w-full rounded-xl p-2.5 text-sm outline-none transition font-mono shadow-inner font-semibold ${errors[`cocuk_dogumTarihi_${index}`] ? 'border-2 border-red-500 bg-red-50 text-red-900 focus:border-red-600 focus:ring-4 focus:ring-red-500/20 placeholder-red-300' : 'border-2 border-slate-300 bg-slate-50 hover:border-slate-400 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 text-slate-900 placeholder-slate-400'}`}/></div>
+                                                                  <div className="space-y-1"><label className="text-[11px] font-bold text-gray-500 uppercase tracking-wide block">Cinsiyet</label><select value={child.cinsiyet} onChange={(e) => handleChildChange(index, 'cinsiyet', e.target.value)} className={`w-full rounded-xl p-2.5 text-sm outline-none transition cursor-pointer shadow-inner font-semibold ${errors[`cocuk_cinsiyet_${index}`] ? 'border-2 border-red-500 bg-red-50 text-red-900 focus:border-red-600 focus:ring-4 focus:ring-red-500/20' : 'border-2 border-slate-300 bg-slate-50 hover:border-slate-400 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 text-slate-900'}`}><option value="">Seçiniz</option><option value="Kız">Kız</option><option value="Erkek">Erkek</option></select></div>
+                                                                  <div className="space-y-1"><label className="text-[11px] font-bold text-gray-500 uppercase tracking-wide block">Öğrenim Durumu</label><select value={child.ogrenimDurumu} onChange={(e) => handleChildChange(index, 'ogrenimDurumu', e.target.value)} className={`w-full rounded-xl p-2.5 text-sm outline-none transition cursor-pointer shadow-inner font-semibold ${errors[`cocuk_ogrenimDurumu_${index}`] ? 'border-2 border-red-500 bg-red-50 text-red-900 focus:border-red-600 focus:ring-4 focus:ring-red-500/20' : 'border-2 border-slate-300 bg-slate-50 hover:border-slate-400 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 text-slate-900'}`}><option value="">Seçiniz</option><option value="Okumuyor">Okumuyor</option><option value="Anaokulu">Anaokulu</option><option value="İlkokul">İlkokul</option><option value="Ortaokul">Ortaokul</option><option value="Lise">Lise</option><option value="Üniversite">Üniversite</option><option value="Açıköğretim">Açıköğretim</option></select></div>
+                                                              </div>
                                                           </div>
-                                                      </div>
-                                                  ))}
-                                              </div>
-                                          )}
+                                                      ))}
+                                                  </div>
+                                              )}
+                                          </div>
                                       </div>
                                   </div>
                               </div>
-                          </div>
-                      )}
 
-                      {/* ADIM 3: EKONOMİK DURUM */}
-                      {currentStep === 3 && (
-                          <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-                                  <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Genel Maddi Durum</label><select name="maddiDurum" value={formData.maddiDurum} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base cursor-pointer ${getBorderClass('maddiDurum')}`}><option value="">Seçiniz</option><option value="Çok İyi">Çok İyi</option><option value="İyi">İyi</option><option value="Orta">Orta</option><option value="Kötü">Kötü</option><option value="Çok Kötü">Çok Kötü</option></select><ErrorMsg name="maddiDurum" /></div>
-                                  <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">İstihdam Durumu</label><select name="calismaDurumu" value={formData.calismaDurumu} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base cursor-pointer ${getBorderClass('calismaDurumu')}`}><option value="">Seçiniz</option><option value="Çalışmıyor">Çalışmıyor</option><option value="Düzenli İş">Düzenli İş</option><option value="Gündelik İş">Gündelik İş</option><option value="Emekli">Emekli</option></select><ErrorMsg name="calismaDurumu" /></div>
-                                  
-                                  <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Aylık Toplam Hane Geliri (TL)</label>
-                                    <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold font-mono">₺</span>
-                                        <input type="number" type="tel" min="0" name="aylikGelir" value={formData.aylikGelir} onChange={handleInputChange} className={`w-full pl-10 pr-4 rounded-xl p-3 outline-none transition text-sm md:text-base font-mono shadow-inner font-bold ${errors.aylikGelir ? 'border-2 border-red-500 bg-red-50 ring-4 ring-red-500/20 focus:border-red-600 text-red-900' : 'border-2 border-slate-300 bg-yellow-50 hover:bg-yellow-100 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/20 text-slate-900'}`} />
-                                    </div>
-                                    <ErrorMsg name="aylikGelir" />
-                                  </div>
-                                  
-                                  <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Ev Kira mı?</label><select name="evKiraMi" value={formData.evKiraMi} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base cursor-pointer ${getBorderClass('evKiraMi')}`}><option value="">Seçiniz</option><option value="Evet">Evet</option><option value="Hayır">Hayır</option></select><ErrorMsg name="evKiraMi" /></div>
-                                  
-                                  {formData.evKiraMi === 'Evet' && (
-                                      <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Aylık Kira Gideri (TL)</label>
+                              {/* EKONOMİK DURUM BÖLÜMÜ */}
+                              <div>
+                                  <h4 className="font-bold text-sm text-emerald-800 mb-5 flex items-center gap-2 uppercase tracking-wide border-b border-emerald-100 pb-2">Ekonomik Durum</h4>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                                      <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Genel Maddi Durum</label><select name="maddiDurum" value={formData.maddiDurum} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base cursor-pointer ${getBorderClass('maddiDurum')}`}><option value="">Seçiniz</option><option value="Çok İyi">Çok İyi</option><option value="İyi">İyi</option><option value="Orta">Orta</option><option value="Kötü">Kötü</option><option value="Çok Kötü">Çok Kötü</option></select><ErrorMsg name="maddiDurum" /></div>
+                                      <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">İstihdam Durumu</label><select name="calismaDurumu" value={formData.calismaDurumu} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base cursor-pointer ${getBorderClass('calismaDurumu')}`}><option value="">Seçiniz</option><option value="Çalışmıyor">Çalışmıyor</option><option value="İş Arıyor">İş Arıyor</option><option value="Düzenli İş">Düzenli İş</option><option value="Gündelik İş">Gündelik İş</option><option value="Emekli">Emekli</option></select><ErrorMsg name="calismaDurumu" /></div>
+                                      
+                                      <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Aylık Toplam Hane Geliri (TL)</label>
                                         <div className="relative">
                                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold font-mono">₺</span>
-                                            <input type="number" type="tel" min="0" name="kira" value={formData.kira} onChange={handleInputChange} className={`w-full pl-10 pr-4 rounded-xl p-3 outline-none transition text-sm md:text-base font-mono shadow-inner font-bold ${errors.kira ? 'border-2 border-red-500 bg-red-50 ring-4 ring-red-500/20 focus:border-red-600 text-red-900' : 'border-2 border-emerald-300 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/20 text-emerald-900'}`} />
+                                            <input type="number" min="0" name="aylikGelir" value={formData.aylikGelir} onChange={handleInputChange} className={`w-full pl-10 pr-4 rounded-xl p-3 outline-none transition text-sm md:text-base font-mono shadow-inner font-bold ${errors.aylikGelir ? 'border-2 border-red-500 bg-red-50 ring-4 ring-red-500/20 focus:border-red-600 text-red-900' : 'border-2 border-slate-300 bg-yellow-50 hover:bg-yellow-100 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/20 text-slate-900'}`} />
                                         </div>
-                                        <ErrorMsg name="kira" />
+                                        <ErrorMsg name="aylikGelir" />
                                       </div>
-                                  )} 
-                                  {formData.evKiraMi === 'Hayır' && (
-                                      <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Ev Kimin / Neden Kira Değil?</label><input type="text" name="evKiraDegilseNeden" value={formData.evKiraDegilseNeden} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base shadow-inner font-semibold ${errors.evKiraDegilseNeden ? 'border-2 border-red-500 bg-red-50 ring-4 ring-red-500/20 focus:border-red-600 text-red-900 placeholder-red-300' : 'border-2 border-emerald-300 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/20 text-emerald-900 placeholder-emerald-700/50'}`} placeholder="Örn: Kendi Evi, Lojman..." /><ErrorMsg name="evKiraDegilseNeden" /></div>
-                                  )}
-                                  
-                                  <div className="col-span-full mt-2 space-y-2 bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 shadow-sm">
-                                    <div className="flex justify-between items-end mb-4">
-                                        <label className="text-sm font-bold text-emerald-900 uppercase tracking-wide">Sistem İhtiyaç Öncelik Derecesi</label>
-                                        <div className={`w-10 h-10 flex items-center justify-center rounded-xl text-lg font-bold shadow-sm transition-colors ${formData.ihtiyacDerecesi >= 8 ? 'bg-red-500 text-white' : formData.ihtiyacDerecesi >= 5 ? 'bg-orange-400 text-white' : 'bg-emerald-500 text-white'}`}>
-                                            {formData.ihtiyacDerecesi || 5}
+                                      
+                                      <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Ev Kira mı?</label><select name="evKiraMi" value={formData.evKiraMi} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base cursor-pointer ${getBorderClass('evKiraMi')}`}><option value="">Seçiniz</option><option value="Evet">Evet</option><option value="Hayır">Hayır</option></select><ErrorMsg name="evKiraMi" /></div>
+                                      
+                                      {formData.evKiraMi === 'Evet' && (
+                                          <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Aylık Kira Gideri (TL)</label>
+                                            <div className="relative">
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold font-mono">₺</span>
+                                                <input type="number" min="0" name="kira" value={formData.kira} onChange={handleInputChange} className={`w-full pl-10 pr-4 rounded-xl p-3 outline-none transition text-sm md:text-base font-mono shadow-inner font-bold ${errors.kira ? 'border-2 border-red-500 bg-red-50 ring-4 ring-red-500/20 focus:border-red-600 text-red-900' : 'border-2 border-emerald-300 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/20 text-emerald-900'}`} />
+                                            </div>
+                                            <ErrorMsg name="kira" />
+                                          </div>
+                                      )} 
+                                      {formData.evKiraMi === 'Hayır' && (
+                                          <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Ev Kimin / Neden Kira Değil?</label><input type="text" name="evKiraDegilseNeden" value={formData.evKiraDegilseNeden} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base shadow-inner font-semibold ${errors.evKiraDegilseNeden ? 'border-2 border-red-500 bg-red-50 ring-4 ring-red-500/20 focus:border-red-600 text-red-900 placeholder-red-300' : 'border-2 border-emerald-300 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/20 text-emerald-900 placeholder-emerald-700/50'}`} placeholder="Örn: Kendi Evi, Lojman..." /><ErrorMsg name="evKiraDegilseNeden" /></div>
+                                      )}
+                                      
+                                      <div className="col-span-full mt-2 space-y-2 bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 shadow-sm">
+                                        <div className="flex justify-between items-end mb-4">
+                                            <label className="text-sm font-bold text-emerald-900 uppercase tracking-wide">Sistem İhtiyaç Öncelik Derecesi</label>
+                                            <div className={`w-10 h-10 flex items-center justify-center rounded-xl text-lg font-bold shadow-sm transition-colors ${formData.ihtiyacDerecesi >= 8 ? 'bg-red-500 text-white' : formData.ihtiyacDerecesi >= 5 ? 'bg-orange-400 text-white' : 'bg-emerald-500 text-white'}`}>
+                                                {formData.ihtiyacDerecesi || 5}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <input type="range" name="ihtiyacDerecesi" min="1" max="10" step="1" value={formData.ihtiyacDerecesi || 5} onChange={handleInputChange} className="w-full" />
-                                    <div className="flex justify-between text-[11px] uppercase font-bold text-gray-400 px-1 mt-2"><span>1 (Düşük)</span><span>5 (Orta)</span><span>10 (Çok Acil)</span></div>
-                                  </div>
+                                        <input type="range" name="ihtiyacDerecesi" min="1" max="10" step="1" value={formData.ihtiyacDerecesi || 5} onChange={handleInputChange} className="w-full" />
+                                        <div className="flex justify-between text-[11px] uppercase font-bold text-gray-400 px-1 mt-2"><span>1 (Düşük)</span><span>5 (Orta)</span><span>10 (Çok Acil)</span></div>
+                                      </div>
 
-                                  <div className="col-span-full bg-gray-50/80 p-5 md:p-6 rounded-2xl border border-gray-200 mt-2">
-                                      <h4 className="font-bold text-sm text-gray-800 mb-5 flex items-center gap-2 uppercase tracking-wide border-b pb-3"><ArrowRightLeft size={18} className="text-emerald-600"/> Kurum Dışı Alınan Düzenli Yardımlar</h4>
-                                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-                                          {AID_TYPES.map((aid) => (
-                                              <div key={aid.key} className={`bg-white p-4 rounded-xl shadow-sm transition-all ${formData[aid.key] === 'Var' ? 'border-emerald-400 ring-2 ring-emerald-50' : 'border border-gray-100 hover:border-gray-200'} ${errors[aid.key + 'Aciklama'] ? 'border-red-400 ring-2 ring-red-100' : ''}`}>
-                                                  <div className="flex justify-between items-center mb-3">
-                                                      <label className="text-[13px] font-bold text-gray-700">{aid.label}</label>
-                                                      <select name={aid.key} value={formData[aid.key]} onChange={handleInputChange} className={`border rounded-lg p-1.5 text-xs font-bold w-20 outline-none cursor-pointer ${formData[aid.key] === 'Var' ? 'bg-emerald-100 text-emerald-800 border-emerald-400' : 'bg-gray-50 text-gray-500 border-gray-200'}`}><option value="Yok">Yok</option><option value="Var">Var</option></select>
+                                      <div className="col-span-full bg-gray-50/80 p-5 md:p-6 rounded-2xl border border-gray-200 mt-2">
+                                          <h4 className="font-bold text-sm text-gray-800 mb-5 flex items-center gap-2 uppercase tracking-wide border-b pb-3"><ArrowRightLeft size={18} className="text-emerald-600"/> Kurum Dışı Alınan Düzenli Yardımlar</h4>
+                                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+                                              {AID_TYPES.map((aid) => (
+                                                  <div key={aid.key} className={`bg-white p-4 rounded-xl shadow-sm transition-all ${formData[aid.key] === 'Var' ? 'border-emerald-400 ring-2 ring-emerald-50' : 'border border-gray-100 hover:border-gray-200'} ${errors[aid.key + 'Aciklama'] ? 'border-red-400 ring-2 ring-red-100' : ''}`}>
+                                                      <div className="flex justify-between items-center mb-3">
+                                                          <label className="text-[13px] font-bold text-gray-700">{aid.label}</label>
+                                                          <select name={aid.key} value={formData[aid.key]} onChange={handleInputChange} className={`border rounded-lg p-1.5 text-xs font-bold w-20 outline-none cursor-pointer ${formData[aid.key] === 'Var' ? 'bg-emerald-100 text-emerald-800 border-emerald-400' : 'bg-gray-50 text-gray-500 border-gray-200'}`}><option value="Yok">Yok</option><option value="Var">Var</option></select>
+                                                      </div>
+                                                      {formData[aid.key] === 'Var' && (<div className="animate-in fade-in pt-1 border-t border-dashed border-gray-100"><input type="text" name={aid.key + 'Aciklama'} value={formData[aid.key + 'Aciklama']} onChange={handleInputChange} placeholder="Yardım tutarı/detayı?" className={`w-full text-xs font-medium outline-none py-2 bg-transparent ${errors[aid.key + 'Aciklama'] ? 'border-b-2 border-red-500 placeholder-red-400 text-red-700' : 'border-b border-emerald-200 focus:border-emerald-500 text-emerald-800'}`}/><ErrorMsg name={aid.key + 'Aciklama'} /></div>)}
                                                   </div>
-                                                  {formData[aid.key] === 'Var' && (<div className="animate-in fade-in pt-1 border-t border-dashed border-gray-100"><input type="text" name={aid.key + 'Aciklama'} value={formData[aid.key + 'Aciklama']} onChange={handleInputChange} placeholder="Yardım tutarı/detayı?" className={`w-full text-xs font-medium outline-none py-2 bg-transparent ${errors[aid.key + 'Aciklama'] ? 'border-b-2 border-red-500 placeholder-red-400 text-red-700' : 'border-b border-emerald-200 focus:border-emerald-500 text-emerald-800'}`}/><ErrorMsg name={aid.key + 'Aciklama'} /></div>)}
-                                              </div>
-                                          ))}
+                                              ))}
+                                          </div>
                                       </div>
                                   </div>
                               </div>
                           </div>
                       )}
 
-                      {/* ADIM 4: ADRES BİLGİLERİ */}
-                      {currentStep === 4 && (
+                      {/* ADIM 3: ADRES BİLGİLERİ */}
+                      {currentStep === 3 && (
                           <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                               <div className="flex items-center justify-center mb-6">
                                   <div className="bg-emerald-50 text-emerald-700 p-4 rounded-full"><MapPin size={32} /></div>
@@ -1286,8 +1289,8 @@
                           </div>
                       )}
 
-                      {/* ADIM 5: İBAN BİLGİLERİ */}
-                      {currentStep === 5 && (
+                      {/* ADIM 4: İBAN BİLGİLERİ */}
+                      {currentStep === 4 && (
                           <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50/50 p-6 md:p-8 rounded-3xl border border-gray-200 shadow-sm max-w-3xl mx-auto">
                                   <div className="col-span-full mb-2"><h4 className="text-sm font-bold uppercase tracking-wide text-gray-800 flex items-center gap-2"><CreditCard size={18} className="text-emerald-600"/> Nakdi Yardım İçin Banka Bilgileri</h4><p className="text-xs text-gray-500 mt-1">Eğer kişi adına banka hesabı yoksa veya kullanılmıyorsa ilgili alanlara 'YOK' yazabilirsiniz.</p></div>
@@ -1298,8 +1301,8 @@
                           </div>
                       )}
 
-                      {/* ADIM 6: KURUM İÇİ YARDIMLAR VE NOTLAR */}
-                      {currentStep === 6 && (
+                      {/* ADIM 5: KURUM İÇİ YARDIMLAR VE NOTLAR */}
+                      {currentStep === 5 && (
                           <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                               
                               <div className="bg-emerald-50/70 p-5 md:p-8 rounded-3xl border border-emerald-100 mb-8 shadow-sm">
@@ -1375,7 +1378,7 @@
                            <div className="space-y-1.5"><label className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Mahalle</label><select value={filters.mahalle} onChange={(e) => handleFilterChange('mahalle', e.target.value)} className="w-full border-2 border-slate-300 bg-slate-50 hover:border-slate-400 focus:bg-white rounded-xl p-2.5 text-sm cursor-pointer outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/20 font-bold text-slate-900 shadow-inner" disabled={!filters.ilce}><option value="">Tümü</option>{filters.ilce && NIGDE_DATA[filters.ilce]?.map(mah => <option key={mah} value={mah}>{mah}</option>)}</select></div>
                            <div className="space-y-1.5"><label className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Uyruğu</label><select value={filters.uyruk} onChange={(e) => handleFilterChange('uyruk', e.target.value)} className="w-full border-2 border-slate-300 bg-slate-50 hover:border-slate-400 focus:bg-white rounded-xl p-2.5 text-sm cursor-pointer outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/20 font-bold text-slate-900 shadow-inner"><option value="">Tümü</option><option value="TC">T.C.</option><option value="Filistin">Filistin</option><option value="Suriye">Suriye</option><option value="Afganistan">Afganistan</option><option value="Irak">Irak</option><option value="Iran">İran</option><option value="Diger">Diğer</option></select></div>
                            <div className="space-y-1.5"><label className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Medeni Hal</label><select value={filters.medeniHal} onChange={(e) => handleFilterChange('medeniHal', e.target.value)} className="w-full border-2 border-slate-300 bg-slate-50 hover:border-slate-400 focus:bg-white rounded-xl p-2.5 text-sm cursor-pointer outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/20 font-bold text-slate-900 shadow-inner"><option value="">Tümü</option><option value="Evli">Evli</option><option value="Bekar">Bekar</option><option value="Dul">Dul</option><option value="Boşanmış">Boşanmış</option></select></div>
-                           <div className="space-y-1.5"><label className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Çalışma Durumu</label><select value={filters.calismaDurumu} onChange={(e) => handleFilterChange('calismaDurumu', e.target.value)} className="w-full border-2 border-slate-300 bg-slate-50 hover:border-slate-400 focus:bg-white rounded-xl p-2.5 text-sm cursor-pointer outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/20 font-bold text-slate-900 shadow-inner"><option value="">Tümü</option><option value="Çalışmıyor">Çalışmıyor</option><option value="Düzenli İş">Düzenli İş</option><option value="Gündelik İş">Gündelik İş</option><option value="Emekli">Emekli</option></select></div>
+                           <div className="space-y-1.5"><label className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Çalışma Durumu</label><select value={filters.calismaDurumu} onChange={(e) => handleFilterChange('calismaDurumu', e.target.value)} className="w-full border-2 border-slate-300 bg-slate-50 hover:border-slate-400 focus:bg-white rounded-xl p-2.5 text-sm cursor-pointer outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/20 font-bold text-slate-900 shadow-inner"><option value="">Tümü</option><option value="Çalışmıyor">Çalışmıyor</option><option value="İş Arıyor">İş Arıyor</option><option value="Düzenli İş">Düzenli İş</option><option value="Gündelik İş">Gündelik İş</option><option value="Emekli">Emekli</option></select></div>
                            <div className="space-y-1.5"><label className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Maddi Durum</label><select value={filters.maddiDurum} onChange={(e) => handleFilterChange('maddiDurum', e.target.value)} className="w-full border-2 border-slate-300 bg-slate-50 hover:border-slate-400 focus:bg-white rounded-xl p-2.5 text-sm cursor-pointer outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/20 font-bold text-slate-900 shadow-inner"><option value="">Tümü</option><option value="Çok Kötü">Çok Kötü</option><option value="Kötü">Kötü</option><option value="Orta">Orta</option><option value="İyi">İyi</option></select></div>
                            
                            <div className="col-span-1 sm:col-span-2 grid grid-cols-2 gap-4">
