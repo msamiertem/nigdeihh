@@ -409,6 +409,17 @@
             if (errors[errKey]) setErrors(prev => ({ ...prev, [errKey]: null }));
           };
 
+          const handleTcBlur = (e) => {
+            const val = e.target.value;
+            if (val && val.length === 11) {
+                const match = records.find(r => (r.tc === val || r.esTc === val) && r.id !== editingId);
+                if (match) {
+                    setDuplicateRecord(match);
+                    setDuplicateReason('main');
+                }
+            }
+          };
+
           const handleEsTcBlur = (e) => {
             const val = e.target.value;
             if (val && val.length === 11) {
@@ -1158,7 +1169,7 @@
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                                   <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Adı <span className="text-red-500">*</span></label><input name="ad" value={formData.ad} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base ${getBorderClass('ad')}`} placeholder="Kimlikteki ad"/><ErrorMsg name="ad" /></div>
                                   <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Soyadı <span className="text-red-500">*</span></label><input name="soyad" value={formData.soyad} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base ${getBorderClass('soyad')}`} placeholder="Kimlikteki soyad"/><ErrorMsg name="soyad" /></div>
-                                  <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">TC Kimlik No <span className="text-red-500">*</span></label><input name="tc" maxLength="11" type="tel" value={formData.tc} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base font-mono ${getBorderClass('tc')}`} placeholder="11 Haneli"/><ErrorMsg name="tc" /></div>
+                                  <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">TC Kimlik No <span className="text-red-500">*</span></label><input name="tc" maxLength="11" type="tel" value={formData.tc} onChange={handleInputChange} onBlur={handleTcBlur} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base font-mono ${getBorderClass('tc')}`} placeholder="11 Haneli"/><ErrorMsg name="tc" /></div>
                                   <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Telefon</label><input type="tel" name="telefon" maxLength="11" value={formData.telefon} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base font-mono ${getBorderClass('telefon')}`} placeholder="05XXXXXXXXX" /><ErrorMsg name="telefon" /></div>
                                   <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Doğum Tarihi</label><input type="date" name="dogumTarihi" value={formData.dogumTarihi} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base ${getBorderClass('dogumTarihi')}`} /><ErrorMsg name="dogumTarihi" /></div>
                                   <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Memleketi</label><input type="text" name="memleketi" value={formData.memleketi} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base ${getBorderClass('memleketi')}`} placeholder="Örn: Niğde / Bor" /><ErrorMsg name="memleketi" /></div>
