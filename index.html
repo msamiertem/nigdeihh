@@ -331,10 +331,14 @@
             sosyalDestek: "Yok", sosyalDestekAciklama: "", belediyeDestegi: "Yok", belediyeDestegiAciklama: "",
             kizilayDestegi: "Yok", kizilayDestegiAciklama: "", muftulukDestegi: "Yok", muftulukDestegiAciklama: "",
             aileSosyalDestegi: "Yok", aileSosyalDestegiAciklama: "", vakiflarDestegi: "Yok", vakiflarDestegiAciklama: "",
-            yapilanNakit: "Yok", yapilanNakitAciklama: "", yapilanRamazan: "Yok", yapilanRamazanAciklama: "",
-            yapilanEt: "Yok", yapilanEtAciklama: "", yapilanKiyafet: "Yok", yapilanKiyafetAciklama: "",
-            yapilanEsya: "Yok", yapilanEsyaAciklama: "", yapilanZekat: "Yok", yapilanZekatAciklama: "",
-            yapilanCek: "Yok", yapilanCekAciklama: "", yapilanDiger: "Yok", yapilanDigerAciklama: "",
+            yapilanNakit: "Yok", yapilanNakitAciklama: "", yapilanNakitCansuyuAciklama: "",
+            yapilanRamazan: "Yok", yapilanRamazanAciklama: "", yapilanRamazanCansuyuAciklama: "",
+            yapilanEt: "Yok", yapilanEtAciklama: "", yapilanEtCansuyuAciklama: "",
+            yapilanKiyafet: "Yok", yapilanKiyafetAciklama: "", yapilanKiyafetCansuyuAciklama: "",
+            yapilanEsya: "Yok", yapilanEsyaAciklama: "", yapilanEsyaCansuyuAciklama: "",
+            yapilanZekat: "Yok", yapilanZekatAciklama: "", yapilanZekatCansuyuAciklama: "",
+            yapilanCek: "Yok", yapilanCekAciklama: "", yapilanCekCansuyuAciklama: "",
+            yapilanDiger: "Yok", yapilanDigerAciklama: "", yapilanDigerCansuyuAciklama: "",
             notlar: "", cocukSayisi: 0, cocuklar: [], hesapAdi: "", iban: "", bankaAdi: "" 
           };
 
@@ -666,7 +670,11 @@
             if (!editData.ihtiyacDerecesi) editData.ihtiyacDerecesi = 5;
             if (!editData.uyruk) editData.uyruk = "TC";
             if (editData.uyruk === 'Diger' && !editData.uyrukDetay) editData.uyrukDetay = "";
-            PROVIDED_AID_TYPES.forEach(aid => { if (!editData[aid.key]) editData[aid.key] = "Yok"; if (!editData[aid.key + 'Aciklama']) editData[aid.key + 'Aciklama'] = ""; });
+            PROVIDED_AID_TYPES.forEach(aid => { 
+                if (!editData[aid.key]) editData[aid.key] = "Yok"; 
+                if (!editData[aid.key + 'Aciklama']) editData[aid.key + 'Aciklama'] = ""; 
+                if (!editData[aid.key + 'CansuyuAciklama']) editData[aid.key + 'CansuyuAciklama'] = ""; 
+            });
             if (!editData.cocukSayisi) editData.cocukSayisi = 0;
             if (!editData.cocuklar) editData.cocuklar = [];
             const count = parseInt(editData.cocukSayisi || 0);
@@ -1285,33 +1293,33 @@
                               </div>
                           </div>
                       )}
-
-                      {/* ADIM 5: İBAN BİLGİLERİ */}
+                      {/* ADIM 5: KURUM İÇİ YARDIMLAR VE NOTLAR */}
                       {currentStep === 5 && (
-                          <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50/50 p-6 md:p-8 rounded-3xl border border-gray-200 shadow-sm max-w-3xl mx-auto">
-                                  <div className="col-span-full mb-2"><h4 className="text-sm font-bold uppercase tracking-wide text-gray-800 flex items-center gap-2"><CreditCard size={18} className="text-emerald-600"/> Nakdi Yardım İçin Banka Bilgileri</h4><p className="text-xs text-gray-500 mt-1">Eğer kişi adına banka hesabı yoksa veya kullanılmıyorsa ilgili alanlara 'YOK' yazabilirsiniz.</p></div>
-                                  <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Banka Adı</label><input type="text" name="bankaAdi" value={formData.bankaAdi} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base ${getBorderClass('bankaAdi')}`} placeholder="Örn: Ziraat Bankası"/><ErrorMsg name="bankaAdi" /></div>
-                                  <div className="space-y-1.5"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Hesap Sahibi Ad Soyad</label><input type="text" name="hesapAdi" value={formData.hesapAdi} onChange={handleInputChange} className={`w-full rounded-xl p-3 outline-none transition text-sm md:text-base ${getBorderClass('hesapAdi')}`} placeholder="Kimlikteki tam ad"/><ErrorMsg name="hesapAdi" /></div>
-                                  <div className="space-y-1.5 col-span-full mt-2"><label className="text-xs font-bold text-gray-600 uppercase tracking-wide">IBAN Numarası</label><input type="text" name="iban" maxLength="26" value={formData.iban} onChange={handleInputChange} className={`w-full rounded-xl p-4 outline-none transition font-mono text-base md:text-lg tracking-widest ${getBorderClass('iban')}`} placeholder="TR000000000000000000000000"/><ErrorMsg name="iban" /></div>
-                              </div>
-                          </div>
-                      )}
-
-                      {/* ADIM 6: KURUM İÇİ YARDIMLAR VE NOTLAR */}
-                      {currentStep === 6 && (
                           <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                               
                               <div className="bg-emerald-50/70 p-5 md:p-8 rounded-3xl border border-emerald-100 mb-8 shadow-sm">
-                                  <h4 className="font-bold text-sm md:text-base text-emerald-900 mb-6 flex items-center gap-2 uppercase tracking-wide border-b border-emerald-200/50 pb-4"><Gift size={20} className="text-emerald-600"/> Derneğimiz Tarafından Verilen Yardımlar</h4>
+                                  <h4 className="font-bold text-sm md:text-base text-emerald-900 mb-6 flex items-center gap-2 uppercase tracking-wide border-b border-emerald-200/50 pb-4"><Gift size={20} className="text-emerald-600"/> İHH ve Cansuyu Tarafından Verilen Yardımlar</h4>
                                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                                       {PROVIDED_AID_TYPES.map((aid) => (
-                                          <div key={aid.key} className={`bg-white p-4 rounded-xl shadow-sm transition-all ${formData[aid.key] === 'Var' ? 'border-emerald-500 ring-2 ring-emerald-100 scale-[1.02]' : 'border border-gray-100'} ${errors[aid.key + 'Aciklama'] ? 'border-red-400 ring-2 ring-red-100' : ''}`}>
+                                          <div key={aid.key} className={`bg-white p-4 rounded-xl shadow-sm transition-all ${formData[aid.key] === 'Var' ? 'border-emerald-500 ring-2 ring-emerald-100 scale-[1.02]' : 'border border-gray-100'} ${errors[aid.key + 'Aciklama'] || errors[aid.key + 'CansuyuAciklama'] ? 'border-red-400 ring-2 ring-red-100' : ''}`}>
                                               <div className="flex justify-between items-center mb-1">
                                                   <label className="text-[13px] font-bold text-gray-800">{aid.label}</label>
                                                   <select name={aid.key} value={formData[aid.key]} onChange={handleInputChange} className={`border rounded-lg p-1.5 text-xs font-bold w-20 outline-none cursor-pointer ${formData[aid.key] === 'Var' ? 'bg-emerald-600 text-white border-emerald-700 shadow-inner' : 'bg-gray-50 text-gray-600 border-gray-300 hover:bg-gray-100'}`}><option value="Yok">Yok</option><option value="Var">Var</option></select>
                                               </div>
-                                              {formData[aid.key] === 'Var' && (<div className="animate-in slide-in-from-top-2 pt-3 mt-2 border-t border-dashed border-gray-200"><input type="text" name={aid.key + 'Aciklama'} value={formData[aid.key + 'Aciklama']} onChange={handleInputChange} placeholder="Tarih / Miktar detayı?" className={`w-full text-sm font-semibold rounded-lg outline-none p-2 shadow-inner transition-all ${errors[aid.key + 'Aciklama'] ? 'border-2 border-red-500 bg-red-50 placeholder-red-300 text-red-900 focus:ring-4 focus:ring-red-500/20 focus:border-red-600' : 'border-2 border-slate-300 bg-slate-50 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/20 text-slate-900 placeholder-slate-400 hover:border-slate-400'}`}/><ErrorMsg name={aid.key + 'Aciklama'} /></div>)}
+                                              {formData[aid.key] === 'Var' && (
+                                                <div className="animate-in slide-in-from-top-2 pt-3 mt-2 border-t border-dashed border-gray-200 space-y-3">
+                                                    <div>
+                                                        <span className="text-[10px] font-extrabold text-emerald-700 uppercase ml-1 tracking-wider block mb-1">Niğde İHH</span>
+                                                        <input type="text" name={aid.key + 'Aciklama'} value={formData[aid.key + 'Aciklama']} onChange={handleInputChange} placeholder="İHH yardım detayı?" className={`w-full text-sm font-semibold rounded-lg outline-none p-2 shadow-inner transition-all ${errors[aid.key + 'Aciklama'] ? 'border-2 border-red-500 bg-red-50 placeholder-red-300 text-red-900 focus:ring-4 focus:ring-red-500/20 focus:border-red-600' : 'border-2 border-slate-300 bg-slate-50 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/20 text-slate-900 placeholder-slate-400 hover:border-slate-400'}`}/>
+                                                        <ErrorMsg name={aid.key + 'Aciklama'} />
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-[10px] font-extrabold text-blue-700 uppercase ml-1 tracking-wider block mb-1">Cansuyu</span>
+                                                        <input type="text" name={aid.key + 'CansuyuAciklama'} value={formData[aid.key + 'CansuyuAciklama'] || ''} onChange={handleInputChange} placeholder="Cansuyu yardım detayı?" className={`w-full text-sm font-semibold rounded-lg outline-none p-2 shadow-inner transition-all ${errors[aid.key + 'CansuyuAciklama'] ? 'border-2 border-red-500 bg-red-50 placeholder-red-300 text-red-900 focus:ring-4 focus:ring-red-500/20 focus:border-red-600' : 'border-2 border-slate-300 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 text-slate-900 placeholder-slate-400 hover:border-slate-400'}`}/>
+                                                        <ErrorMsg name={aid.key + 'CansuyuAciklama'} />
+                                                    </div>
+                                                </div>
+                                              )}
                                           </div>
                                       ))}
                                   </div>
