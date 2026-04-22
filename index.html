@@ -628,6 +628,20 @@
               window.scrollTo({ top: 0, behavior: 'smooth' });
           };
 
+          // YENİ: Klavyeden Enter tuşuna basıldığında sayfayı atlamak yerine bir sonraki kutucuğa (Tab işlevi) geçmesini sağlar
+          const handleKeyDown = (e) => {
+              if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'BUTTON') {
+                  e.preventDefault(); // Formun otomatik gönderilmesini (sayfa atlamasını) engelle
+                  const form = e.target.form;
+                  if (!form) return;
+                  const elements = Array.from(form.elements).filter(el => !el.disabled && el.type !== 'hidden');
+                  const index = elements.indexOf(e.target);
+                  if (index > -1 && index < elements.length - 1) {
+                      elements[index + 1].focus();
+                  }
+              }
+          };
+
           // Otomatik form submiti yerine sadece butona tıklandığında çalışan özel kaydetme fonksiyonu
           const handleFinalSave = async () => {
             for (let i = 1; i <= totalSteps; i++) {
@@ -1161,7 +1175,7 @@
                         </div>
                     </div>
 
-                    <form onSubmit={(e) => { e.preventDefault(); if (currentStep < totalSteps) handleNextStep(); }} className="p-5 md:p-8 bg-white min-h-[400px]">
+                    <form onKeyDown={handleKeyDown} onSubmit={(e) => e.preventDefault()} className="p-5 md:p-8 bg-white min-h-[400px]">
                       
                       {/* ADIM 1: KİMLİK BİLGİLERİ */}
                       {currentStep === 1 && (
